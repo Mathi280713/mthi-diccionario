@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a7c6c">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<style>html,body{margin:0;padding:0}</style></head><body>
+<title>Mthi Diccionario</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+:root {
+  --bg: #eceff0;
+  --surface: #ffffff;
+  --ink: #11181c;
+  --muted: #5a686e;
+  --line: #d3dadc;
+  --accent: #0a7c6c;
+  --accent-ink: #ffffff;
+  --accent-soft: #d6efea;
+  --danger: #b3261e;
+  --paper-bg: #ffffff;
+  --paper-ink: #151a1d;
+  --shadow: 0 10px 30px rgba(10, 30, 28, 0.16);
+  --font-display: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --font-ui: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1113;
+    --surface: #151c1f;
+    --ink: #e7eeef;
+    --muted: #8c9ca2;
+    --line: #263135;
+    --accent: #4fd6bd;
+    --accent-ink: #03211c;
+    --accent-soft: #123b35;
+    --danger: #ff8a80;
+    --paper-bg: #151c1f;
+    --paper-ink: #e7eeef;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1113;
+  --surface: #151c1f;
+  --ink: #e7eeef;
+  --muted: #8c9ca2;
+  --line: #263135;
+  --accent: #4fd6bd;
+  --accent-ink: #03211c;
+  --accent-soft: #123b35;
+  --danger: #ff8a80;
+  --paper-bg: #151c1f;
+  --paper-ink: #e7eeef;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.45;
+  overflow: hidden;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-tap-highlight-color: transparent;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+#app { position: relative; height: 100%; max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ibtn { flex: none; display: grid; place-items: center; width: 46px; height: 46px; padding: 0; background: transparent; border: 0; border-radius: 12px; color: var(--ink); }
+.ibtn:hover { background: var(--accent-soft); }
+.ibtn svg, .tbtn svg, .opt svg { display: block; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.btn { min-height: 46px; padding: 0 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; font-weight: 600; font-size: 15px; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.danger { color: var(--danger); border-color: var(--danger); }
+.btn:disabled { opacity: 0.5; cursor: default; }
+.home { display: flex; flex-direction: column; height: 100%; }
+.home-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 14px; }
+.brand { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-height: 1; letter-spacing: -0.01em; }
+.brand span { color: var(--accent); }
+.homeq { margin: 12px 0 8px; min-height: 48px; width: 100%; padding: 0 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; font-size: 16px; }
+.note { margin: 0 0 8px; font-size: 13px; color: var(--muted); }
+.list { flex: 1; min-height: 0; overflow-y: auto; display: grid; align-content: start; gap: 10px; padding: 4px 0 110px; }
+.empty { padding: 36px 8px; text-align: center; color: var(--muted); display: grid; gap: 8px; justify-items: center; }
+.empty h2 { margin: 0; font-family: var(--font-display); font-size: 26px; color: var(--ink); }
+.empty p { margin: 0; max-width: 34ch; }
+.fab { position: absolute; right: 0; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; gap: 8px; height: 58px; padding: 0 22px 0 18px; border: 0; border-radius: 18px; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 16px; box-shadow: var(--shadow); }
+.fab svg { fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; }
+.ed { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.ed-top { order: -2; display: flex; align-items: center; gap: 4px; flex: none; min-height: 56px; }
+.ed-title { flex: 1; min-width: 0; display: grid; }
+.ed-title input { min-width: 0; width: 100%; padding: 2px 4px; background: transparent; border: 0; border-radius: 6px; font-family: var(--font-display); font-weight: 700; font-size: 20px; line-height: 1.2; }
+.ed-title input::placeholder { color: var(--muted); }
+.ed-title small { padding: 0 4px; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ed-title small.err { color: var(--danger); }
+.backdrop { position: fixed; inset: 0; z-index: 50; background: rgba(0, 0, 0, 0.45); }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 51; max-width: 860px; max-height: 84%; margin: 0 auto; overflow-y: auto; padding: 8px max(16px, env(safe-area-inset-left, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--surface); border-radius: 22px 22px 0 0; box-shadow: var(--shadow); animation: up 0.22s ease-out; }
+@keyframes up { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+.sheet .grab { width: 44px; height: 5px; margin: 4px auto 10px; border-radius: 3px; background: var(--line); }
+.sheet h2 { margin: 0 0 12px; font-family: var(--font-display); font-weight: 800; font-size: 22px; }
+.sheet h3 { margin: 16px 0 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.sheet p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.opt { display: flex; align-items: center; gap: 10px; min-height: 50px; padding: 0 12px; text-align: left; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; font-size: 15px; font-weight: 500; }
+.opt:hover { border-color: var(--accent); }
+.opt[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.opt svg { color: var(--accent); flex: none; }
+.opt.danger { color: var(--danger); }
+.opt.danger svg { color: var(--danger); }
+.field { display: grid; gap: 6px; margin-bottom: 12px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.field input, .field textarea { width: 100%; min-width: 0; min-height: 48px; padding: 10px 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; font-size: 16px; font-weight: 400; color: var(--ink); }
+.field textarea { min-height: 120px; resize: vertical; }
+.rowbtn { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.stat { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.stat span:last-child { font-weight: 600; font-variant-numeric: tabular-nums; }
+.result { white-space: pre-wrap; padding: 12px; margin: 8px 0; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; max-height: 34vh; overflow-y: auto; color: var(--ink); font-size: 15px; }
+.toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); z-index: 70; transform: translateX(-50%); max-width: calc(100% - 32px); padding: 11px 18px; background: var(--ink); color: var(--bg); border-radius: 14px; font-size: 14px; font-weight: 500; box-shadow: var(--shadow); animation: up 0.2s ease-out; }
+[hidden] { display: none !important; }
+input, textarea, select { box-sizing: border-box; max-width: 100%; }
+.field { min-width: 0; }
+.filewrap { position: relative; display: inline-flex; }
+.ovl { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; font-size: 0; cursor: pointer; z-index: 2; }
+.opt.filewrap { position: relative; }
+:root { --font-display: system-ui, "Segoe UI", Roboto, sans-serif; --font-ui: system-ui, "Segoe UI", Roboto, sans-serif; --font-serif: Georgia, "Times New Roman", serif; }
+*, *::before, *::after { box-sizing: border-box; }
+.brand, .sheet h2, .empty h2 { font-family: var(--font-display); }
+.top { position: relative; flex: none; padding-bottom: 6px; }
+.sb { display: flex; align-items: center; margin-top: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding-right: 4px; }
+.sb:focus-within { border-color: var(--accent); }
+.sb input { flex: 1; min-width: 0; min-height: 52px; padding: 0 16px; background: transparent; border: 0; font-size: 18px; outline: none; }
+.sb input::-webkit-search-cancel-button { display: none; }
+.sug { position: absolute; z-index: 20; left: 0; right: 0; top: 100%; max-height: 52vh; overflow-y: auto; margin-top: 4px; padding: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+.sug button { display: flex; width: 100%; align-items: center; gap: 10px; min-height: 48px; padding: 0 12px; background: transparent; border: 0; border-radius: 10px; text-align: left; font-size: 17px; }
+.sug button:hover, .sug button[aria-selected="true"] { background: var(--accent-soft); }
+.sug svg { flex: none; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.content { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 0 40px; }
+.h3 { margin: 18px 0 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { min-height: 40px; padding: 0 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; font-weight: 600; font-size: 15px; }
+.chip:hover { border-color: var(--accent); }
+.big { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 54px; margin-top: 14px; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 16px; font-weight: 700; font-size: 17px; }
+.big svg, .acts svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.wordhead { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-top: 8px; }
+.wordhead h2 { margin: 0; font-family: var(--font-serif); font-size: 40px; line-height: 1.1; overflow-wrap: anywhere; }
+.acts { display: flex; flex: none; gap: 2px; }
+.acts .ibtn[aria-pressed="true"] { color: var(--accent); }
+.acts .ibtn[aria-pressed="true"] svg { fill: currentColor; }
+.warn { margin: 10px 0; padding: 10px 12px; background: var(--accent-soft); border-radius: 12px; font-size: 14px; }
+.sec { margin: 12px 0; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.sec > summary { cursor: pointer; padding: 14px 16px; font-weight: 700; font-size: 16px; list-style: none; display: flex; justify-content: space-between; align-items: center; color: var(--accent); }
+.sec > summary::-webkit-details-marker { display: none; }
+.sec > summary::after { content: "+"; font-size: 22px; font-weight: 400; color: var(--muted); }
+.sec[open] > summary::after { content: "–"; }
+.sec .sb2 { padding: 0 16px 14px; font-size: 17px; line-height: 1.6; overflow-wrap: anywhere; }
+.sb2 p { margin: 0 0 0.6em; }
+.sb2 dl { margin: 0 0 0.5em; }
+.sb2 dt { float: left; clear: left; min-width: 1.5em; font-weight: 700; color: var(--accent); }
+.sb2 dd { margin: 0 0 0.55em 1.9em; }
+.sb2 dd dl, .sb2 dd ul { font-size: 15.5px; color: var(--muted); margin: 0.2em 0; }
+.sb2 ul, .sb2 ol { margin: 0.3em 0 0.6em; padding-left: 1.3em; }
+.sb2 h3 { margin: 1em 0 0.3em; font-size: 15px; color: var(--muted); }
+.sb2 a { color: var(--accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent); text-underline-offset: 3px; }
+.sb2 .tw { overflow-x: auto; margin: 8px 0; }
+.sb2 table { border-collapse: collapse; font-size: 14px; }
+.sb2 td, .sb2 th { border: 1px solid var(--line); padding: 4px 8px; }
+.srcl { display: block; margin: 16px 0; text-align: center; color: var(--muted); font-size: 14px; }
+.skel { height: 18px; margin: 12px 0; border-radius: 8px; background: var(--line); opacity: 0.6; animation: pulse 1.2s infinite ease-in-out; }
+@keyframes pulse { 50% { opacity: 0.25; } }
+.favs { display: grid; gap: 8px; }
+.fav { display: flex; align-items: center; justify-content: space-between; min-height: 52px; padding: 0 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; font-size: 18px; font-weight: 600; text-align: left; width: 100%; }
+.fav:hover { border-color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { .skel { animation: none; } }
+
+</style>
+<div id="app">
+  <header class="top">
+    <div class="home-head"><h1 class="brand">Mthi <span>Diccionario</span></h1></div>
+    <form class="sb" id="sbForm" role="search">
+      <input id="q" type="search" placeholder="Busca una palabra…" aria-label="Buscar una palabra" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="search">
+      <button class="ibtn" type="submit" data-i="search" aria-label="Buscar"></button>
+    </form>
+    <div class="sug" id="sug" hidden role="listbox" aria-label="Sugerencias"></div>
+  </header>
+  <main class="content" id="content" aria-live="polite"></main>
+  <div id="layer"></div>
+</div>
+
+<script>
+/* ===== Utilidades ===== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const lsGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
+const debounce = (fn, ms) => { let t; const f = (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; f.flush = () => { clearTimeout(t); fn(); }; f.cancel = () => clearTimeout(t); return f; };
+const plural = (n, a, b) => n + ' ' + (n === 1 ? a : b);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+const mkCanvas = (w, h) => { const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(h)); return c; };
+const toBlob = (c, type, q) => new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error('No se pudo crear la imagen.'))), type, q));
+const nextFrame = () => new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
+function fmtSize(n) { return n < 1024 ? n + ' B' : n < 1048576 ? Math.round(n / 1024) + ' KB' : (n / 1048576).toFixed(1) + ' MB'; }
+function timeAgo(ms) {
+  const d = Date.now() - ms;
+  if (d < 45000) return 'ahora';
+  if (d < 3600000) return 'hace ' + Math.max(1, Math.round(d / 60000)) + ' min';
+  if (d < 86400000) return 'hace ' + Math.round(d / 3600000) + ' h';
+  if (d < 172800000) return 'ayer';
+  try { return new Date(ms).toLocaleDateString('es-CR', { day: 'numeric', month: 'short' }); } catch (e) { return ''; }
+}
+function toast(msg, ms = 2800) {
+  $$('.toast').forEach((t) => t.remove());
+  const t = el('div', 'toast', msg); t.setAttribute('role', 'status'); $('#layer').appendChild(t); setTimeout(() => t.remove(), ms);
+}
+const ICONS = {
+  back: 'M15 5l-7 7 7 7', camera: 'M4 8h3l2-3h6l2 3h3v11H4zM12 11.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z',
+  image: 'M4 5h16v14H4zM9 10a1.6 1.6 0 100-3.2A1.6 1.6 0 009 10zM4 17l5-5 4 4 3-3 4 4',
+  trash: 'M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13', share: 'M12 15V3M7 8l5-5 5 5M5 13v8h14v-8',
+  download: 'M12 4v11M7 11l5 5 5-5M5 20h14', file: 'M7 3h7l5 5v13H7zM14 3v5h5', plus: 'M12 5v14M5 12h14',
+  left: 'M15 5l-7 7 7 7', right: 'M9 5l7 7-7 7', copy: 'M9 9h11v11H9zM5 15V5h10', pen: 'M4 20l4-1L19 8l-3-3L5 16zM14 7l3 3',
+  dots: 'M12 5h.01M12 12h.01M12 19h.01', check: 'M5 12l5 5 9-10', search: 'M11 4a7 7 0 100 14 7 7 0 000-14zM20 20l-4-4', star: 'M12 3l2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 17l-5.4 2.8 1.1-6.1L3.2 9.4l6.1-.8z', speaker: 'M4 9v6h4l5 4V5L8 9zM16 9a4 4 0 010 6M18.5 6.5a8 8 0 010 11', clock: 'M12 4a8 8 0 100 16 8 8 0 000-16zM12 8v4l3 2', shuffle: 'M4 7h4l8 10h4M4 17h4l2-2.5M14 9.5L16 7h4M18 5l2 2-2 2M18 15l2 2-2 2', sun: 'M12 8a4 4 0 100 8 4 4 0 000-8zM12 2v2M12 20v2M2 12h2M20 12h2'
+};
+function icon(n, s = 24) { return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" aria-hidden="true"><path d="' + (ICONS[n] || '') + '"/></svg>'; }
+function paintIcons(r = document) { $$('[data-i]', r).forEach((e) => { if (!e.firstChild) e.innerHTML = icon(e.dataset.i); }); }
+
+/* hojas desde abajo */
+let sheetClose = null;
+function openSheet(title, build) {
+  if (sheetClose) sheetClose();
+  const bd = el('div', 'backdrop'), sh = el('div', 'sheet');
+  sh.setAttribute('role', 'dialog'); sh.setAttribute('aria-modal', 'true'); sh.setAttribute('aria-label', title);
+  sh.appendChild(el('div', 'grab')); sh.appendChild(el('h2', '', title));
+  const close = () => { bd.remove(); sh.remove(); if (sheetClose === close) sheetClose = null; if (sh._onClose) sh._onClose(); };
+  sheetClose = close; bd.addEventListener('click', close);
+  build(sh, close); $('#layer').append(bd, sh);
+  return close;
+}
+function optBtn(ic, label, fn, o) {
+  o = o || {};
+  const b = el('button', 'opt' + (o.danger ? ' danger' : '')); b.type = 'button';
+  b.innerHTML = icon(ic, 22) + '<span>' + esc(label) + '</span>';
+  if (o.pressed != null) b.setAttribute('aria-pressed', o.pressed ? 'true' : 'false');
+  b.addEventListener('click', fn); return b;
+}
+const grid = (sh) => { const g = el('div', 'grid'); sh.appendChild(g); return g; };
+const note = (sh, t) => { const p = el('p', '', t); p.style.color = 'var(--muted)'; p.style.margin = '0 0 10px'; sh.appendChild(p); return p; };
+
+/* ===== Almacenamiento (IndexedDB; si no hay, memoria) ===== */
+const DB = {
+  db: null, mem: { scans: new Map(), blobs: new Map() },
+  async open() {
+    try {
+      this.db = await new Promise((res, rej) => {
+        const r = indexedDB.open('mthi-escaner', 1);
+        r.onupgradeneeded = () => { r.result.createObjectStore('scans', { keyPath: 'id' }); r.result.createObjectStore('blobs'); };
+        r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); r.onblocked = () => rej(new Error('blocked'));
+      });
+      try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) { /* ok */ }
+    } catch (e) { this.db = null; }
+    return !!this.db;
+  },
+  rq(r) { return new Promise((res, rej) => { r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); },
+  tx(stores, fn) {
+    return new Promise((res, rej) => {
+      const t = this.db.transaction(stores, 'readwrite'); let out;
+      t.oncomplete = () => res(out); t.onabort = t.onerror = () => rej(t.error && t.error.name === 'QuotaExceededError' ? new Error('No hay espacio en este dispositivo.') : (t.error || new Error('No se pudo guardar.')));
+      out = fn(t);
+    });
+  },
+  async all() { return this.db ? this.rq(this.db.transaction('scans').objectStore('scans').getAll()) : Array.from(this.mem.scans.values()); },
+  async put(scan) { if (!this.db) { this.mem.scans.set(scan.id, JSON.parse(JSON.stringify(scan))); return; } await this.tx('scans', (t) => { t.objectStore('scans').put(scan); }); },
+  async putBlob(k, b) { if (!this.db) { this.mem.blobs.set(k, b); return; } await this.tx('blobs', (t) => { t.objectStore('blobs').put(b, k); }); },
+  async getBlob(k) { return this.db ? (await this.rq(this.db.transaction('blobs').objectStore('blobs').get(k))) || null : this.mem.blobs.get(k) || null; },
+  async delBlob(k) { if (!this.db) { this.mem.blobs.delete(k); return; } await this.tx('blobs', (t) => { t.objectStore('blobs').delete(k); }); },
+  async del(id) {
+    if (!this.db) { this.mem.scans.delete(id); Array.from(this.mem.blobs.keys()).filter((k) => k.indexOf(id + '/') === 0).forEach((k) => this.mem.blobs.delete(k)); return; }
+    const keys = (await this.rq(this.db.transaction('blobs').objectStore('blobs').getAllKeys())).filter((k) => String(k).indexOf(id + '/') === 0);
+    await this.tx(['scans', 'blobs'], (t) => { t.objectStore('scans').delete(id); keys.forEach((k) => t.objectStore('blobs').delete(k)); });
+  }
+};
+
+/* Guardar / compartir archivos */
+async function saveFile(name, blob) {
+  const claude = window.claude;
+  if (claude && claude.use) {
+    let dl = null; try { dl = await claude.use('downloads'); } catch (e) { dl = null; }
+    if (dl) { try { await dl.save({ filename: name, data: blob }); return 'saved'; } catch (e) { if (e && e.code === 'declined') return 'declined'; } }
+  }
+  const url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000); return 'saved';
+}
+async function shareFiles(files) {
+  try {
+    if (navigator.canShare && navigator.canShare({ files })) { await navigator.share({ files }); return 'shared'; }
+  } catch (e) { if (e && e.name === 'AbortError') return 'declined'; }
+  return 'unsupported';
+}
+const canShareFiles = (files) => { try { return !!(navigator.canShare && navigator.canShare({ files })); } catch (e) { return false; } };
+
+/* ===== Mthi Diccionario ===== */
+const API = 'https://es.wiktionary.org/w/api.php';
+const DAILY = ['alborada','efímero','sosiego','nostalgia','melancolía','serendipia','resiliencia','anhelo','bosque','cobijo','destello','ocaso','mirada','umbral','fugaz','quimera','sigilo','arrebol','recuerdo','esperanza','solsticio','cascada','bruma','vértigo','lúcido','sendero','murmullo','zozobra','amanecer','brújula','cálido','éxtasis','insólito','ímpetu','cadencia','albedrío','sutil','vestigio','cimiento','paciencia','horizonte','raíz','tormenta','hilván','ocurrencia','aurora','canción','ternura','cometa','azar'];
+const SKIP = /^(traducciones|referencias( y notas)?|v[eé]ase tambi[eé]n|notas?|fuentes|enlaces externos)$/i;
+const OPEN = /^(sustantivo|adjetivo|verbo|adverbio|pronombre|interjecci[oó]n|preposici[oó]n|conjunci[oó]n|art[ií]culo|locuci[oó]n|forma|contracci[oó]n|prefijo|sufijo|numeral|determinante|abreviatura|sigla|símbolo|onomatopeya)/i;
+
+/* --- almacenamiento: IndexedDB con respaldo en memoria --- */
+const WDB = (() => {
+  let db = null, mem = new Map();
+  const open = () => new Promise((res) => {
+    if (db) return res(db);
+    try {
+      const r = indexedDB.open('mthi-diccionario', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('w', { keyPath: 'k' });
+      r.onsuccess = () => { db = r.result; res(db); };
+      r.onerror = () => res(null);
+    } catch (e) { res(null); }
+  });
+  const tx = async (mode, fn) => { const d = await open(); if (!d) return null; return new Promise((res) => { try { const t = d.transaction('w', mode); const out = fn(t.objectStore('w')); t.oncomplete = () => res(out && out.result !== undefined ? out.result : null); t.onerror = t.onabort = () => res(null); } catch (e) { res(null); } }); };
+  return {
+    get: async (k) => (await tx('readonly', (s) => s.get(k))) || mem.get(k) || null,
+    put: async (o) => { mem.set(o.k, o); await tx('readwrite', (s) => s.put(o)); },
+    all: async () => (await tx('readonly', (s) => s.getAll())) || Array.from(mem.values()),
+    del: async (k) => { mem.delete(k); await tx('readwrite', (s) => s.delete(k)); },
+    clear: async () => { mem.clear(); await tx('readwrite', (s) => s.clear()); }
+  };
+})();
+const jget = (k, d) => { try { return JSON.parse(lsGet(k)) || d; } catch (e) { return d; } };
+const favs = () => jget('mthi-dic-favs', []);
+const hist = () => jget('mthi-dic-hist', []);
+const norm = (w) => w.trim().replace(/\s+/g, ' ').toLowerCase();
+const isFav = (w) => favs().includes(norm(w));
+function toggleFav(w) { const k = norm(w); let f = favs(); f = f.includes(k) ? f.filter((x) => x !== k) : [k, ...f]; lsSet('mthi-dic-favs', JSON.stringify(f)); return f.includes(k); }
+function pushHist(w) { const k = norm(w); const h = [k, ...hist().filter((x) => x !== k)].slice(0, 40); lsSet('mthi-dic-hist', JSON.stringify(h)); }
+
+/* --- red --- */
+async function api(params) {
+  const u = API + '?' + new URLSearchParams(Object.assign({ format: 'json', origin: '*' }, params));
+  const ac = new AbortController(), t = setTimeout(() => ac.abort(), 12000);
+  try {
+    const r = await fetch(u, { signal: ac.signal });
+    if (!r.ok) throw new Error('http ' + r.status);
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+async function fetchPage(title) {
+  const j = await api({ action: 'parse', page: title, prop: 'text', redirects: '1', disableeditsection: '1', disabletoc: '1', formatversion: '2' });
+  if (j.error) { const e = new Error(j.error.code || 'error'); e.missing = /missingtitle|invalid/.test(j.error.code || ''); throw e; }
+  const p = j.parse; if (!p) throw new Error('vacío');
+  const html = typeof p.text === 'string' ? p.text : (p.text && p.text['*']) || '';
+  return { title: p.title || title, html };
+}
+async function suggest(q) {
+  try { const j = await api({ action: 'opensearch', search: q, limit: '8', namespace: '0' }); return (j[1] || []).filter((x) => !/\s{2,}/.test(x)); } catch (e) { return null; }
+}
+
+/* --- análisis del HTML de Wikcionario (sección Español) --- */
+const ALLOWED = new Set(['P', 'DL', 'DT', 'DD', 'UL', 'OL', 'LI', 'B', 'I', 'EM', 'STRONG', 'SPAN', 'A', 'BR', 'H4', 'H5', 'SMALL', 'U', 'SUB']);
+function clean(node, base) {
+  const out = document.createDocumentFragment();
+  for (const c of Array.from(node.childNodes)) {
+    if (c.nodeType === 3) { out.appendChild(document.createTextNode(c.nodeValue)); continue; }
+    if (c.nodeType !== 1) continue;
+    const tag = c.tagName;
+    if (/^(SCRIPT|STYLE|SUP|IMG|FIGURE|TABLE|AUDIO|VIDEO|SVG|IFRAME|NOSCRIPT)$/.test(tag)) continue;
+    const cls = c.getAttribute('class') || '';
+    if (/mw-editsection|reference|noprint|metadata|NavFrame|mw-empty-elt|audiotable|toc/.test(cls)) continue;
+    if (tag === 'A') {
+      const h = c.getAttribute('href') || '', m = h.match(/^\/wiki\/([^#?]+)/);
+      const txt = c.textContent;
+      if (!txt.trim()) continue;
+      if (m && !/^(Especial|Categor|Archivo|Wikcionario|Ayuda|Plantilla|Apéndice|Ap%C3%A9ndice|Special|File)/i.test(decodeURIComponent(m[1])) && !/redlink=1/.test(h) && !/\bnew\b/.test(cls)) {
+        const a = document.createElement('a'); a.href = '#'; a.dataset.w = decodeURIComponent(m[1]).replace(/_/g, ' '); a.textContent = txt; out.appendChild(a);
+      } else if (m && /redlink=1/.test(h)) { const a = document.createElement('a'); a.href = '#'; a.dataset.w = txt.trim(); a.textContent = txt; out.appendChild(a); }
+      else out.appendChild(document.createTextNode(txt));
+      continue;
+    }
+    if (ALLOWED.has(tag)) {
+      const n = document.createElement(tag.toLowerCase());
+      n.appendChild(clean(c, base)); out.appendChild(n);
+    } else out.appendChild(clean(c, base));
+  }
+  return out;
+}
+const isHeadWrap = (n) => n.nodeType === 1 && (/^H[1-6]$/.test(n.tagName) || (n.classList && n.classList.contains('mw-heading')));
+const headOf = (n) => (/^H[1-6]$/.test(n.tagName) ? n : n.querySelector('h1,h2,h3,h4,h5,h6'));
+const hLevel = (n) => { const h = headOf(n); return h ? +h.tagName[1] : 9; };
+
+function parseEntry(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const root = doc.querySelector('.mw-parser-output') || doc.body;
+  const kids = Array.from(root.children);
+  let start = -1;
+  for (let i = 0; i < kids.length; i++) {
+    if (isHeadWrap(kids[i]) && hLevel(kids[i]) === 2) {
+      const h = headOf(kids[i]); const id = (h.id || h.textContent || '').trim();
+      if (/^Espa(ñ|%C3%B1|n)ol$/i.test(id) || /^Espa.ol$/i.test(h.textContent.trim())) { start = i; break; }
+    }
+  }
+  if (start < 0) return null;
+  const secs = []; let cur = { title: '', nodes: [] };
+  for (let i = start + 1; i < kids.length; i++) {
+    const k = kids[i];
+    if (isHeadWrap(k)) {
+      const lv = hLevel(k);
+      if (lv <= 2) break;
+      if (cur.nodes.length || cur.title) secs.push(cur);
+      cur = { title: headOf(k).textContent.replace(/\[.*?\]/g, '').trim(), nodes: [] };
+    } else cur.nodes.push(k);
+  }
+  if (cur.nodes.length || cur.title) secs.push(cur);
+  const out = [];
+  for (const s of secs) {
+    if (SKIP.test(s.title)) continue;
+    const box = document.createElement('div');
+    s.nodes.forEach((n) => box.appendChild(clean(document.createElement('div').appendChild(n.cloneNode(true)).parentNode, '')));
+    const text = box.textContent.trim();
+    if (!text) continue;
+    out.push({ title: s.title || 'Definición', html: box.innerHTML, open: OPEN.test(s.title) });
+  }
+  if (!out.length) return null;
+  // sinónimos / antónimos
+  const syn = new Set(), ant = new Set();
+  const tmp = document.createElement('div'); tmp.innerHTML = out.map((s) => s.html).join('');
+  const lines = tmp.querySelectorAll('li, dd, p, dt');
+  lines.forEach((ln) => {
+    const own = ln.cloneNode(true); own.querySelectorAll('ul,ol,dl').forEach((x) => x.remove());
+    const t = own.textContent.trim();
+    let m = t.match(/^(Sin[óo]nimos?|Ant[óo]nimos?)\s*:/i);
+    if (!m) return;
+    const target = /^Sin/i.test(m[1]) ? syn : ant;
+    const links = own.querySelectorAll('a[data-w]');
+    if (links.length) links.forEach((a) => target.add(a.dataset.w));
+    else t.slice(m[0].length).split(/[,;]/).map((x) => x.replace(/\(.*?\)|\.$/g, '').trim()).filter((x) => x && x.length < 40).forEach((x) => target.add(x));
+  });
+  return { sections: out, syn: Array.from(syn).slice(0, 24), ant: Array.from(ant).slice(0, 24) };
+}
+
+/* --- vista --- */
+const content = () => $('#content');
+let current = null, reqId = 0;
+function chipRow(words) { const r = el('div', 'chips'); words.forEach((w) => { const b = el('button', 'chip', w); b.type = 'button'; b.dataset.w = w; r.appendChild(b); }); return r; }
+function dailyWord() { const d = new Date(); const n = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 864e5); return DAILY[n % DAILY.length]; }
+
+function showHome() {
+  current = null; $('#q').value = ''; hideSug();
+  const c = content(); c.textContent = ''; c.scrollTop = 0;
+  const dw = dailyWord();
+  const b = el('button', 'big'); b.type = 'button'; b.dataset.w = dw; b.innerHTML = icon('sun', 22) + '<span>Palabra del día: ' + esc(dw) + '</span>'; c.appendChild(b);
+  const r = el('button', 'big'); r.type = 'button'; r.style.background = 'var(--surface)'; r.style.color = 'var(--ink)'; r.style.border = '1px solid var(--line)'; r.innerHTML = icon('shuffle', 22) + '<span>Sorpréndeme</span>';
+  r.addEventListener('click', () => { const f = favs().concat(DAILY); lookup(f[Math.floor(Math.random() * f.length)]); }); c.appendChild(r);
+  const h = hist(); if (h.length) { c.appendChild(el('div', 'h3', 'Recientes')); c.appendChild(chipRow(h.slice(0, 12))); }
+  const f = favs(); if (f.length) { c.appendChild(el('div', 'h3', 'Favoritas')); const g = el('div', 'favs'); f.slice(0, 30).forEach((w) => { const x = el('button', 'fav'); x.type = 'button'; x.dataset.w = w; x.innerHTML = '<span>' + esc(w) + '</span>' + icon('right', 18); g.appendChild(x); }); c.appendChild(g); }
+  if (!h.length && !f.length) { const e = el('div', 'empty'); e.innerHTML = '<p>Escribe una palabra arriba para ver su significado, sinónimos y ejemplos.</p><p class="note">Las palabras que consultes quedan guardadas para verlas sin internet.</p>'; c.appendChild(e); }
+  const cnt = el('p', 'note'); cnt.style.textAlign = 'center'; cnt.style.marginTop = '24px';
+  WDB.all().then((a) => { if (a.length) cnt.textContent = plural(a.length, 'palabra guardada', 'palabras guardadas') + ' para uso sin conexión · ' + (a.reduce((s, x) => s + (x.html ? x.html.length : 0), 0) / 1024 | 0) + ' KB'; });
+  c.appendChild(cnt);
+}
+
+function renderEntry(word, data, fromCache) {
+  const c = content(); c.textContent = ''; c.scrollTop = 0;
+  const hd = el('div', 'wordhead'); hd.appendChild(el('h2', '', data.title || word));
+  const acts = el('div', 'acts');
+  const fav = el('button', 'ibtn'); fav.type = 'button'; fav.dataset.i = 'star'; fav.setAttribute('aria-label', 'Favorita'); fav.setAttribute('aria-pressed', isFav(word) ? 'true' : 'false');
+  fav.addEventListener('click', () => { const on = toggleFav(word); fav.setAttribute('aria-pressed', on ? 'true' : 'false'); toast(on ? 'Agregada a favoritas' : 'Quitada de favoritas', 1600); });
+  acts.appendChild(fav);
+  if ('speechSynthesis' in window) { const sp = el('button', 'ibtn'); sp.type = 'button'; sp.dataset.i = 'speaker'; sp.setAttribute('aria-label', 'Escuchar pronunciación'); sp.addEventListener('click', () => { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(data.title || word); u.lang = 'es-419'; speechSynthesis.speak(u); } catch (e) {} }); acts.appendChild(sp); }
+  const cp = el('button', 'ibtn'); cp.type = 'button'; cp.dataset.i = 'share'; cp.setAttribute('aria-label', 'Compartir'); cp.addEventListener('click', () => shareEntry(data)); acts.appendChild(cp);
+  hd.appendChild(acts); c.appendChild(hd); paintIcons(hd);
+  if (fromCache === 'offline') c.appendChild(el('div', 'warn', 'Sin conexión: mostrando la versión guardada.'));
+  const e = data.entry;
+  if (e.syn.length) { c.appendChild(el('div', 'h3', 'Sinónimos')); c.appendChild(chipRow(e.syn)); }
+  if (e.ant.length) { c.appendChild(el('div', 'h3', 'Antónimos')); c.appendChild(chipRow(e.ant)); }
+  e.sections.forEach((s) => {
+    const d = el('details', 'sec'); if (s.open) d.open = true;
+    d.appendChild(el('summary', '', s.title));
+    const b = el('div', 'sb2'); b.innerHTML = s.html; d.appendChild(b); c.appendChild(d);
+  });
+  const a = el('a', 'srcl', 'Fuente: Wikcionario (CC BY-SA)'); a.href = 'https://es.wiktionary.org/wiki/' + encodeURIComponent(data.title || word); a.target = '_blank'; a.rel = 'noopener'; c.appendChild(a);
+}
+function shareEntry(data) {
+  const sec = data.entry.sections[0]; const tmp = el('div'); tmp.innerHTML = sec ? sec.html : '';
+  const txt = (data.title + '\n' + tmp.textContent.trim().replace(/\n{2,}/g, '\n')).slice(0, 900) + '\n— Mthi Diccionario';
+  if (navigator.share) navigator.share({ title: data.title, text: txt }).catch(() => {});
+  else if (navigator.clipboard) navigator.clipboard.writeText(txt).then(() => toast('Copiado'), () => toast('No se pudo copiar'));
+}
+function renderMissing(word, sugs) {
+  const c = content(); c.textContent = ''; c.scrollTop = 0;
+  const e = el('div', 'empty'); e.appendChild(el('h2', '', 'No encontré “' + word + '”'));
+  e.appendChild(el('p', '', sugs && sugs.length ? '¿Quisiste decir…?' : 'Revisa la ortografía (tildes incluidas) o prueba otra palabra.')); c.appendChild(e);
+  if (sugs && sugs.length) c.appendChild(chipRow(sugs));
+}
+function renderError(word, msg) {
+  const c = content(); c.textContent = ''; const e = el('div', 'empty');
+  e.appendChild(el('h2', '', 'Sin conexión')); e.appendChild(el('p', '', msg));
+  const b = el('button', 'btn primary', 'Reintentar'); b.type = 'button'; b.addEventListener('click', () => lookup(word)); e.appendChild(b); c.appendChild(e);
+}
+function skeleton() { const c = content(); c.textContent = ''; for (let i = 0; i < 5; i++) { const s = el('div', 'skel'); s.style.width = (95 - i * 12) + '%'; c.appendChild(s); } }
+
+async function lookup(raw, noPush) {
+  const word = (raw || '').trim(); if (!word) return;
+  doSug.cancel(); sugReq++; hideSug(); $('#q').value = word; $('#q').blur();
+  const my = ++reqId; current = word; const key = norm(word);
+  if (!noPush) { try { history.pushState({ w: word }, ''); } catch (e) {} }
+  const cached = await WDB.get(key);
+  if (cached) { renderEntry(word, cached, false); pushHist(key); }
+  else skeleton();
+  if (!navigator.onLine && cached) { renderEntry(word, cached, 'offline'); return; }
+  try {
+    let res; const tries = [word, word.toLowerCase(), word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()].filter((x, i, a) => a.indexOf(x) === i);
+    let lastErr;
+    for (const t of tries) { try { res = await fetchPage(t); if (res) break; } catch (e) { lastErr = e; if (!e.missing) throw e; } }
+    if (my !== reqId) return;
+    if (!res) { if (cached) return; const s = await suggest(word); if (my !== reqId) return; renderMissing(word, s); return; }
+    const entry = parseEntry(res.html);
+    if (!entry) { if (cached) return; const s = await suggest(word); if (my !== reqId) return; renderMissing(word, s); return; }
+    const rec = { k: key, title: res.title, entry, t: Date.now(), html: JSON.stringify(entry) };
+    await WDB.put(rec); pushHist(key);
+    if (my === reqId) renderEntry(word, rec, false);
+  } catch (e) {
+    if (my !== reqId) return;
+    if (cached) { renderEntry(word, cached, 'offline'); return; }
+    renderError(word, 'No pude conectar con el diccionario. Revisa tu internet e inténtalo de nuevo.');
+  }
+}
+
+/* --- sugerencias --- */
+let sugSel = -1;
+function hideSug() { const s = $('#sug'); s.hidden = true; s.textContent = ''; sugSel = -1; }
+function showSug(list) {
+  const s = $('#sug'); s.textContent = '';
+  if (!list.length) { s.hidden = true; return; }
+  list.forEach((w) => { const b = el('button'); b.type = 'button'; b.dataset.w = w; b.setAttribute('role', 'option'); b.innerHTML = icon('search', 18) + '<span>' + esc(w) + '</span>'; s.appendChild(b); });
+  s.hidden = false; sugSel = -1;
+}
+let sugReq = 0;
+const doSug = debounce(async () => {
+  const q = $('#q').value.trim(); if (!q) { hideSug(); return; }
+  const my = ++sugReq; const k = norm(q);
+  const local = (await WDB.all()).map((x) => x.title).filter((t) => norm(t).startsWith(k)).slice(0, 4);
+  if (my !== sugReq) return; if (local.length) showSug(local);
+  if (!navigator.onLine) return;
+  const net = await suggest(q); if (my !== sugReq || !net) return;
+  const all = Array.from(new Set(local.concat(net))).slice(0, 8);
+  if ($('#q').value.trim() === q) showSug(all);
+}, 220);
+
+/* --- inicio --- */
+function init() {
+  paintIcons();
+  $('#sbForm').addEventListener('submit', (e) => { e.preventDefault(); const sel = $('#sug button[aria-selected="true"]'); lookup(sel ? sel.dataset.w : $('#q').value); });
+  $('#q').addEventListener('input', doSug);
+  $('#q').addEventListener('keydown', (e) => {
+    const bs = $$('#sug button'); if (!bs.length || $('#sug').hidden) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); sugSel = (sugSel + (e.key === 'ArrowDown' ? 1 : -1) + bs.length) % bs.length; bs.forEach((b, i) => b.setAttribute('aria-selected', i === sugSel ? 'true' : 'false')); }
+    else if (e.key === 'Escape') hideSug();
+  });
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest('[data-w]');
+    if (t) { e.preventDefault(); lookup(t.dataset.w); return; }
+    if (!e.target.closest('.top')) hideSug();
+  });
+  $('.brand').addEventListener('click', () => { if (current) { try { history.back(); } catch (e) { showHome(); } } });
+  window.addEventListener('popstate', (e) => { if (e.state && e.state.w) lookup(e.state.w, true); else showHome(); });
+  showHome();
+  const p = new URLSearchParams(location.search).get('q'); if (p) lookup(p, true);
+}
+init();
+
+</script>
+
+<script>if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}</script>
+</body></html>
